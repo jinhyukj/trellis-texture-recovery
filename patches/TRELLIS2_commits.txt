@@ -1,0 +1,15 @@
+7fd76a0 extract mode: copy refs before mesh so mesh existence marks a complete set
+63e357f github: B-strict zip-less extract mode (matched file + parsed refs), file-level resume
+43985a9 HSSD: cap download workers (HSSD_WORKERS, default 16) - 144 threads caused mass HF errors
+4572938 resume: remove partial repo zips so they get re-cloned
+d449106 resume support: ABO skip-extracted, ObjaverseXL recover objects from existing repo zips
+3eb09a2 ObjaverseXL: cap download processes (OXL_PROCESSES, default 16)
+401ddb9 data_toolkit: port ABO/HSSD/3D-FUTURE/Toys4k dataset scripts from microsoft/TRELLIS (callback -> func(file, metadatum))
+f4b2a70 fix 1.ModuleNotFoundError: No module named 'datasets' 2.fix metadate
+5565d24 Release Training Code
+903bfcf update texturing pipeline
+1762f49 update paper link
+10b3de9 Fix website url
+4f15c72 Add demo link
+de38fdd Init Release
+7f9ccee Initial commit
