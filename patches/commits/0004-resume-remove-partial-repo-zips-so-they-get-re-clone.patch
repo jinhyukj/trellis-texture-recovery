@@ -1,0 +1,27 @@
+From 4572938e7e1ab447464bc227ffb14006594aba83 Mon Sep 17 00:00:00 2001
+From: jinhyuk <wkdwlsgur0928@gmail.com>
+Date: Sat, 22 Aug 2026 16:29:57 +0900
+Subject: [PATCH 4/7] resume: remove partial repo zips so they get re-cloned
+
+---
+ data_toolkit/datasets/ObjaverseXL.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/data_toolkit/datasets/ObjaverseXL.py b/data_toolkit/datasets/ObjaverseXL.py
+index 584652c..89c8b9d 100644
+--- a/data_toolkit/datasets/ObjaverseXL.py
++++ b/data_toolkit/datasets/ObjaverseXL.py
+@@ -73,7 +73,9 @@ def download(metadata, output_dir, **kwargs):
+                         else:
+                             mismatched += 1
+             except zipfile.BadZipFile:
+-                print(f"[resume] bad zip skipped: {zpath}")
++                # partial zip from an interrupted run: remove it so objaverse re-clones the repo next run
++                os.remove(zpath)
++                print(f"[resume] bad zip removed (will be re-downloaded next run): {zpath}")
+         print(f"[resume] recovered {recovered} objects from {len(by_zip)} existing repo zips (sha256 mismatch: {mismatched})")
+ 
+     downloaded = {}
+-- 
+2.34.1
+

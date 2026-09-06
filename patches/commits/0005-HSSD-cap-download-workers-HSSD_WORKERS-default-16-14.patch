@@ -1,0 +1,26 @@
+From 43985a9744c05bc4412aa03e1059d1ac0c8d9c01 Mon Sep 17 00:00:00 2001
+From: jinhyuk <wkdwlsgur0928@gmail.com>
+Date: Mon, 24 Aug 2026 12:14:47 +0000
+Subject: [PATCH 5/7] HSSD: cap download workers (HSSD_WORKERS, default 16) -
+ 144 threads caused mass HF errors
+
+---
+ data_toolkit/datasets/HSSD.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/data_toolkit/datasets/HSSD.py b/data_toolkit/datasets/HSSD.py
+index f9806e5..d5f5f8a 100644
+--- a/data_toolkit/datasets/HSSD.py
++++ b/data_toolkit/datasets/HSSD.py
+@@ -42,7 +42,7 @@ def download(metadata, output_dir, **kwargs):
+     
+     downloaded = {}
+     metadata = metadata.set_index("file_identifier")
+-    with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor, \
++    with ThreadPoolExecutor(max_workers=int(os.environ.get("HSSD_WORKERS", "16"))) as executor, \
+         tqdm(total=len(metadata), desc="Downloading") as pbar:
+         def worker(instance: str) -> str:
+             try:
+-- 
+2.34.1
+

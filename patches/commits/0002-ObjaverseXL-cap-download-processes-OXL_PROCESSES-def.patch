@@ -1,0 +1,25 @@
+From 3eb09a2de58264cc58375e0b67862db96ecb8c2a Mon Sep 17 00:00:00 2001
+From: jinhyuk <wkdwlsgur0928@gmail.com>
+Date: Sat, 22 Aug 2026 14:50:08 +0900
+Subject: [PATCH 2/7] ObjaverseXL: cap download processes (OXL_PROCESSES,
+ default 16)
+
+---
+ data_toolkit/datasets/ObjaverseXL.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/data_toolkit/datasets/ObjaverseXL.py b/data_toolkit/datasets/ObjaverseXL.py
+index 99cd239..0ed7d08 100644
+--- a/data_toolkit/datasets/ObjaverseXL.py
++++ b/data_toolkit/datasets/ObjaverseXL.py
+@@ -37,6 +37,7 @@ def download(metadata, output_dir, **kwargs):
+         annotations,
+         download_dir=os.path.join(output_dir, "raw"),
+         save_repo_format="zip",
++        processes=int(os.environ.get("OXL_PROCESSES", "16")),  # 2026-08-22: 64(cpu_count) -> 16, SATA SSD random-write saturation
+     )
+     
+     downloaded = {}
+-- 
+2.34.1
+

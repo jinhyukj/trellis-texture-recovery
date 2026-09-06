@@ -1,0 +1,78 @@
+From d4491065125be321a3386dc31153d2f814152d79 Mon Sep 17 00:00:00 2001
+From: jinhyuk <wkdwlsgur0928@gmail.com>
+Date: Sat, 22 Aug 2026 16:28:01 +0900
+Subject: [PATCH 3/7] resume support: ABO skip-extracted, ObjaverseXL recover
+ objects from existing repo zips
+
+---
+ data_toolkit/datasets/ABO.py         |  6 ++++-
+ data_toolkit/datasets/ObjaverseXL.py | 36 ++++++++++++++++++++++++++++
+ 2 files changed, 41 insertions(+), 1 deletion(-)
+
+diff --git a/data_toolkit/datasets/ABO.py b/data_toolkit/datasets/ABO.py
+index b8b4098..5f97735 100644
+--- a/data_toolkit/datasets/ABO.py
++++ b/data_toolkit/datasets/ABO.py
+@@ -39,7 +39,11 @@ def download(metadata, output_dir, **kwargs):
+             tqdm(total=len(metadata), desc="Extracting") as pbar:
+             def worker(instance: str) -> str:
+                 try:
+-                    tar.extract(f"3dmodels/original/{instance}", path=os.path.join(output_dir, 'raw'))
++                    member = f"3dmodels/original/{instance}"
++                    dst = os.path.join(output_dir, 'raw', member)
++                    # 2026-08-22 resume: skip extraction when the file is already fully extracted
++                    if not (os.path.exists(dst) and os.path.getsize(dst) == tar.getmember(member).size):
++                        tar.extract(member, path=os.path.join(output_dir, 'raw'))
+                     sha256 = get_file_hash(os.path.join(output_dir, 'raw/3dmodels/original', instance))
+                     pbar.update()
+                     return sha256
+diff --git a/data_toolkit/datasets/ObjaverseXL.py b/data_toolkit/datasets/ObjaverseXL.py
+index 0ed7d08..584652c 100644
+--- a/data_toolkit/datasets/ObjaverseXL.py
++++ b/data_toolkit/datasets/ObjaverseXL.py
+@@ -40,6 +40,42 @@ def download(metadata, output_dir, **kwargs):
+         processes=int(os.environ.get("OXL_PROCESSES", "16")),  # 2026-08-22: 64(cpu_count) -> 16, SATA SSD random-write saturation
+     )
+     
++    # 2026-08-22 resume fix: objaverse.xl skips repos whose zip already exists and returns NO paths
++    # for their objects, so a restarted run would never record them. Recover them here by opening
++    # the existing zips, hashing the expected files and recording matches.
++    repos_dir = os.path.join(output_dir, "raw", "github", "repos")
++    if os.path.isdir(repos_dir):
++        pending = metadata[~metadata["file_identifier"].isin(file_paths.keys())]
++        by_zip = {}
++        for fid, sha in zip(pending["file_identifier"], pending["sha256"]):
++            parts = fid.split("/")
++            if len(parts) < 8 or parts[2] != "github.com":
++                continue
++            zpath = os.path.join(repos_dir, parts[3], f"{parts[4]}.zip")
++            by_zip.setdefault(zpath, []).append((fid, "/".join(parts[7:]), sha))
++        recovered, mismatched = 0, 0
++        for zpath, items in by_zip.items():
++            if not os.path.exists(zpath):
++                continue
++            try:
++                with zipfile.ZipFile(zpath) as z:
++                    names = set(z.namelist())
++                    for fid, inner, sha in items:
++                        if inner not in names:
++                            continue
++                        h = hashlib.sha256()
++                        with z.open(inner) as f:
++                            for chunk in iter(lambda: f.read(1 << 20), b""):
++                                h.update(chunk)
++                        if h.hexdigest() == sha:
++                            file_paths[fid] = os.path.join(zpath, inner)
++                            recovered += 1
++                        else:
++                            mismatched += 1
++            except zipfile.BadZipFile:
++                print(f"[resume] bad zip skipped: {zpath}")
++        print(f"[resume] recovered {recovered} objects from {len(by_zip)} existing repo zips (sha256 mismatch: {mismatched})")
++
+     downloaded = {}
+     metadata = metadata.set_index("file_identifier")
+     for k, v in file_paths.items():
+-- 
+2.34.1
+
