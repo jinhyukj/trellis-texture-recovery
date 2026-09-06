@@ -1,0 +1,12 @@
+diff --git a/data_toolkit/datasets/ObjaverseXL.py b/data_toolkit/datasets/ObjaverseXL.py
+index 0409ab4..b38226e 100644
+--- a/data_toolkit/datasets/ObjaverseXL.py
++++ b/data_toolkit/datasets/ObjaverseXL.py
+@@ -1,6 +1,7 @@
+ import os
+ import re
+ import json
++import urllib.parse
+ import shutil
+ import argparse
+ import tempfile

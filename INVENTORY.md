@@ -137,22 +137,3 @@ Unity 원천 기록(`.meta`/`.mat`/`.prefab`)을 따라가 텍스처를 받고 �
 | `unity_confirmed/` | 106G | `shard1_confirmed_files.csv`의 목록으로 텍스처만 재수집 |
 | `unity_confirmed_shard2/` | 98G | `shard2_confirmed_files.csv` 동일 |
 | cvlab17 `/mnt/sde/jinhyuk` | Toys4k 44G · HSSD 22G | **유일본** (Vast엔 metadata만) |
-
----
-
-# 부록 — Step 1·2 재현에 필요한 것 (전부 이 저장소에 있음)
-
-| 필요한 것 | 어디에 | 비고 |
-|---|---|---|
-| `env.sh` | `scripts/0_download/` | 진입점 (conda·경로·PYTHONNOUSERSITE) |
-| `build_metadata.py`·`ObjaverseXL.py` | `patches/dataset_scripts/` | 또는 `patches/commits/`로 원본에 적용 |
-| `gh_shard.sh` | `scripts/0_download/` | 선정·수렴·장부·하드링크 |
-| **명세** `github_metadata_min.csv.gz` | `ledgers/common/` | **sha256 + file_identifier**(URL). 재다운로드의 필수 입력. captions·점수는 용량 때문에 제외 — 필요하면 Step 1로 HF에서 재취득 |
-| **소실 목록** `missing_fids.txt.gz` | `ledgers/common/` | 17,554개. 없으면 **죽은 repo를 계속 재시도**하게 됨 |
-| **다운로드 기록** `github_raw_metadata.csv.gz` | `ledgers/common/` | 294,289행 (`sha256, local_path`). 무엇을 실제로 받았는지의 기록 = 재개의 근거 |
-| shard 정의 `shard*.shas.gz` | `ledgers/shard1|2/` | 그 shard가 정확히 어느 집합인지 |
-| conda 환경 | ❌ 없음 | `setup.sh`로 재생성 후 **objaverse 패치 다시 덮어쓸 것** |
-
-> ⚠️ `metadata.csv` 원본(captions 포함, 94MB)은 저장소에서 제외했다.
-> Step 1 (`build_metadata.py ObjaverseXL --source github`) 한 줄로 HF에서 다시 만들 수 있다.
-> 다만 **URL이 없으면 아무것도 못 받으므로** 최소본(sha256+URL)은 위에 백업해뒀다.
