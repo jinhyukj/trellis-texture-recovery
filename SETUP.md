@@ -5,6 +5,9 @@
 ```bash
 # TRELLIS.2 + 우리 패치
 git clone https://github.com/microsoft/TRELLIS.2 && cd TRELLIS.2
+git fetch origin pull/116/head:pr-116         # ⚠️ 필수 — f4b2a70 은 미병합 PR 브랜치라
+                                              #    일반 clone 에는 없다 (main 기준이 되면
+                                              #    ObjaverseXL.py 자체가 없어 패치 0002 실패)
 git checkout f4b2a70                          # PR#116 기준점
 git am <이 저장소>/patches/commits/000*.patch  # 우리 커밋 7개
 git apply <이 저장소>/patches/commits/9999-uncommitted.diff
