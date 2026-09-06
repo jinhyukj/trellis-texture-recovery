@@ -4,7 +4,7 @@
 blob 없이 트리만 clone → 필요한 파일 blob만 checkout → sha 검증 → 참조 해석·추가 checkout → 추출 트리로 복사.
 장부·재개 규약은 기존과 동일 (mesh 존재 = 완료 마커, refs 먼저 복사).
 """
-import os, re, sys, json, shutil, hashlib, subprocess, tempfile, time
+import os, re, sys, json, shutil, hashlib, subprocess, tempfile, time, urllib.parse
 from multiprocessing import Pool
 import pandas as pd
 
@@ -48,8 +48,8 @@ def refs_for(path, tree_base):
         elif ext in ("fbx","blend"):
             for m in TEXRE.findall(data):
                 refs.update(bb(m.decode("utf8","ignore")))
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[refs_for] {os.path.basename(path)}: {type(e).__name__}: {e}", file=sys.stderr, flush=True)
     return refs
 
 def mtl_texrefs(path, tree_base):

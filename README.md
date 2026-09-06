@@ -92,6 +92,7 @@ sha256 | mesh_path | repo | texture_path | tex_slot | mat_path
 | 함정 | 증상 | 대응 |
 |---|---|---|
 | **`git ls-tree -l`** | partial clone에서 blob 크기 조회가 **파일마다 서버 왕복** → 무조건 타임아웃 | 크기 조회 절대 금지 (제거하니 repo당 10분 → 10초) |
+| **`urllib` 미import** | `gh_partial.py`의 gltf 분기가 `urllib.parse.unquote`를 부르는데 import가 없어 `NameError` → `except Exception: pass`가 삼킴 → **gltf 참조가 항상 0개**. shard2 gltf 해결률 12%(shard1 97%)로 드러남 | ✅ 수정 완료. 참조 해석 실패는 이제 stderr로 출력 |
 | 고정 타임아웃 잔존 | git 호출 하나라도 배수 미적용이면 대형 repo 전멸 | 모든 호출을 `run()` 경유 + `*_TMULT` |
 | **라벨링 버그 패턴** | "코드가 확정 분기에 도달"=CONFIRMED로 기록 → 텍스처 0장인데 CONFIRMED | **결과물 검사 후 라벨** + 파이프라인 끝에 불변식 자동검사 |
 | 유니코드 이름 | Unity YAML이 비ASCII를 `\uXXXX`로 저장 → 중국어/러시아어 재질 매칭 실패 | `dec()` 디코더 필수 |
